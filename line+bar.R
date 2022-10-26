@@ -1,0 +1,118 @@
+#############################################
+#title：r for spss 
+#
+#author：yikang1020
+#
+#mygithub:https://github.com/Yikang1020
+#
+#tips：modify some parameters
+##############################################
+library(ggplot2)
+library(tidyverse)
+library(reshape2)
+library(paletteer)
+##############################################
+no_cue = c(570,660,800,1100,790,650)
+cue_upright_inverted = c(530,580,650,970,720,585)
+cue_slope = c(480,530,650,890,710,550)
+cue_u_s = c(400,410,430,430,415,410)
+angle = c('0°or 360°','60°','120°','180°','240°','300°')
+
+df = data.frame(no_cue,cue_upright_inverted,cue_slope,cue_u_s,angle)
+
+df = melt(df, id="angle",value.name = 'value')  
+
+df = data.frame(df)
+df$value = as.numeric(df$value)
+
+df$se = rnorm(length(df$value),50,10)
+###############################################
+colour =  paletteer_c("grDevices::Burg", 4)
+
+p7=ggplot(data = df,
+       aes(x = angle, y = value, group = factor(variable), color = variable)) +
+  geom_line()+
+  geom_errorbar(aes(ymin = value-se, ymax = value+se), 
+                width = 0.1)+
+  #geom_ribbon(aes(ymin = value-se, ymax = value+se), alpha = 0.1) +
+  geom_point(size=3)+
+  scale_color_manual(name = "条件",
+                     labels=c("无提示信号","提示正反","提示倾斜度","提示正和倾斜度"),
+                     values = colour)+
+  labs(x = "角度",
+       y="反应时/ms",
+       caption="图7 不同提示条件各个倾斜角度的被试反应时")+
+  scale_y_continuous(expand=c(0,0),
+                     limits=c(300,1200),
+                     breaks=c(300,600,900,1200))+
+  scale_x_discrete(limits=c('0°or 360°','60°','120°','180°','240°','300°'))+
+  theme(
+    panel.background = element_rect(fill = 'white'),
+    
+    #panel.grid.major = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(colour = 'grey60'),
+    panel.grid.minor = element_blank(),
+    #panel.background = element_blank(),
+    
+    axis.line = element_line(colour = 'black'),
+    
+    rect = element_rect(colour = 'white'),
+    
+    legend.position = c(0.90,0.90),
+    legend.background = element_rect( fill = "white", size = 0.3, linetype = "solid", colour = "black"),
+    legend.key = element_blank(),
+    legend.title.align =  0.3,
+    plot.caption = element_text(hjust=0.5, size=rel(1.2))) 
+
+ggsave(
+  filename = "line7.png", # 保存的文件名称。通过后缀来决定生成什么格式的图片
+  width = 7,             # 宽
+  height = 7,            # 高
+  units = "in",          # 单位
+  dpi = 300              # 分辨率DPI
+)
+
+#############################################
+colour =  paletteer_c("grDevices::Burg", 4)
+#paletteer_c("grDevices::Purple-Orange", 4)
+#paletteer_c("grDevices::Burg", 4)
+p8=ggplot(data = df,aes(x = angle, y = value, group = variable, fill = variable)) +
+  geom_col(position = "dodge")+
+  geom_errorbar(aes(ymin = value-se, ymax = value+se), 
+                width = 0.2,
+                position=position_dodge(.9))+
+  #scale_fill_discrete(name = "条件",labels=c("无提示信号","提示正反","提示倾斜度","提示正和倾斜度"))+  
+  scale_fill_manual(name = "条件",
+                    labels=c("无提示信号","提示正反","提示倾斜度","提示正和倾斜度"),
+                    values = colour)+
+  
+  #theme_classic()+
+  labs(x = "角度",
+       y="反应时/ms",
+       caption="图8 不同提示条件各个倾斜角度的被试反应时")+
+  scale_y_continuous(expand=c(0,0),
+                     limits=c(0,1200))+
+  scale_x_discrete(limits=c('0°or 360°','60°','120°','180°','240°','300°'))+
+  theme(
+    panel.background = element_rect(fill = 'white'),
+    #panel.background = element_blank(),
+    axis.line = element_line(colour = 'black'),
+    rect = element_rect(colour = 'white'),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(colour = 'grey60'),
+    legend.position = c(0.90,0.90),
+    legend.background = element_rect( fill = "white", size = 0.3, linetype = "solid", colour = "black"),
+    legend.key = element_blank(),
+    legend.title.align =  0.3,
+    #panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(hjust=0.5, size=rel(1.2))) 
+
+ggsave(
+  filename = "bar8.png", # 保存的文件名称。通过后缀来决定生成什么格式的图片
+  width = 7,             # 宽
+  height = 7,            # 高
+  units = "in",          # 单位
+  dpi = 300              # 分辨率DPI
+)
